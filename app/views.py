@@ -9,43 +9,116 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import * 
 from rest_framework.generics import *
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.permissions import IsAuthenticated
 
-
-# Endpoints onde somente o diretor pode alterar 
-
+# CRUD para usuario 
 class CreateUserView(APIView):
-    permission_classes = [IsDiretor]  # Adiciona a permissão personalizada
+    permission_classes = [IsDiretorOrAdministrador]  # Adiciona a permissão personalizada
     def post(self, request):
-        if not request.user.has_perm('app.add_usuario'):  # Aqui você pode adicionar mais permissões se necessário
+        if not request.user.has_perm('app.add_usuario'):  
             return Response({"detail": "Você não tem permissão para criar usuários."}, status=status.HTTP_403_FORBIDDEN)
         
         serializer = UsuarioSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()  
             
-            refresh = RefreshToken.for_user(user)
-            access_token = str(refresh.access_token)
-            refresh_token = str(refresh)
-        
+            # refresh = RefreshToken.for_user(user)
+            # access_token = str(refresh.access_token)
+            # refresh_token = str(refresh)
+
             return Response({
-                'refresh': refresh_token,
-                'access': access_token,
+                # 'refresh': refresh_token,
+                # 'access': access_token,
                 'message':"usuario criado"
             }, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class UpdateDestroyUsuario(RetrieveUpdateDestroyAPIView):
+class UpdateDeleteDetailUsuario(RetrieveUpdateDestroyAPIView):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
-    permission_classes = [IsDiretor]
+    permission_classes = [IsDiretorOrAdministrador]
 
-# Endpoints onde o professor e diretor pode alterar 
+
+# Para o token 
+class LoginView(TokenObtainPairView):
+    serializer_class = LoginSerializer
+
+# CRUD Disciplinas 
+class UpdateDeleteDetailDisciplina(RetrieveUpdateDestroyAPIView):
+    queryset = Disciplina.objects.all()
+    serializer_class = DisciplinaSerializer
+    permission_classes = [IsDiretorOrAdministrador]
+
+class CreateDisciplina(ListCreateAPIView):
+    queryset = Disciplina.objects.all()
+    serializer_class = DisciplinaSerializer
+    permission_classes = [IsDiretorOrAdministrador]
+
+
+#CRUD Salas 
+class CreateSala(ListCreateAPIView):
+    queryset = Sala.objects.all()
+    serializer_class = SalaSerializer
+    permission_classes = [IsDiretorOrAdministrador]
+
+class UpdateDeleteDetailSala(RetrieveUpdateDestroyAPIView):
+    queryset = Sala.objects.all()
+    serializer_class = SalaSerializer
+    permission_classes = [IsDiretorOrAdministrador]
+
+
+#CRUD Reservas 
+class CreateReservaAmbiente(ListCreateAPIView):
+    queryset = ReservaAmbiente.objects.all()
+    serializer_class = ReservaSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [IsAuthenticated()]
+        return [IsDiretorOrAdministrador()]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        professor_id = self.request.query_params.get('professor', None)
+        if professor_id:
+            queryset = queryset.filter(disc__professor_id=professor_id)
+        return queryset
+
+class UpdateDeleteDetailAmbiente(RetrieveUpdateDestroyAPIView):
+    queryset = ReservaAmbiente.objects.all()
+    serializer_class = ReservaSerializer
+    permission_classes = [IsDiretorOrAdministrador]
+
+#Listagem 
+# Professores veem suas proprias disciplinas 
+class DisciplinasPorProfessor(ListAPIView):
+    serializer_class = DisciplinaSerializer
+    permission_classes = [IsProfessor]
+
+    def get_queryset(self):
+        return Disciplina.objects.filter(professor=self.request.user)
+
+# Professores veem apenas suas reservas
+class ReservasPorProfessor(ListAPIView):
+    serializer_class = ReservaSerializer
+    permission_classes = [IsProfessor]
+
+    def get_queryset(self):
+        return ReservaAmbiente.objects.filter(disc__professor=self.request.user)
+
+# Todos os usuarios
 class ListUsuario(ListAPIView):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
-    permission_classes = [IsProfessor]
+    permission_classes = [IsDiretorProfessor]
 
-# Diretor e professor 
+class ListSala(ListAPIView):
+    queryset = Sala.objects.all()
+    serializer_class = SalaSerializer
+    permission_classes = [IsDiretorProfessor]
 
-# Create your views here.
+
+
+

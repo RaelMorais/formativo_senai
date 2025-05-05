@@ -21,9 +21,11 @@ class Usuario (AbstractUser):
     data_nasc = models.DateTimeField(null=True, blank=True)
     data_contra = models.DateTimeField(null=True, blank=True)
     ni = models.CharField(max_length=100, default='') # Numero de identificação
-
-
     REQUIRED_FIELDS = ['cargo', 'situacao']
+
+    
+    def __str__(self):
+        return self.nome
 
 # Para cadastro de disciplinas 
 class Disciplina(models.Model):
@@ -33,6 +35,19 @@ class Disciplina(models.Model):
     desc = models.CharField(max_length=100)
     professor = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=True, blank=True)
 
+    
+    def __str__(self):
+        return self.nome
+
+class Sala(models.Model):
+    nome = models.CharField(max_length=255, default='')
+    capacidade = models.CharField(max_length=100, default='')
+
+    def __str__(self):
+        return self.nome
+
+
+
 # Para reserva de ambientes 
 class ReservaAmbiente(models.Model):
     data_ini = models.DateField()
@@ -40,5 +55,8 @@ class ReservaAmbiente(models.Model):
     periodo = models.CharField(max_length=100, choices=(('M', 'Manhã'), ('T', 'Tarde'), ('N', 'Noite')))
     prof_resp = models.ForeignKey(Usuario, on_delete=models.CASCADE, max_length=100)
     disc = models.ForeignKey(Disciplina, on_delete=models.CASCADE, max_length=100)
+    sala_reservada = models.ForeignKey(Sala, on_delete=models.CASCADE, default='')
 
-
+    
+    def __str__(self):
+        return f'{self.sala_reservada} - {self.get_periodo_display()} ({self.data_ini} a {self.data_fim})'
