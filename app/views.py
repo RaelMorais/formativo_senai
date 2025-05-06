@@ -56,7 +56,7 @@ class UpdateDeleteDetailUsuario(RetrieveUpdateDestroyAPIView):
             serializer = self.get_serializer(usuario, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
-                return Response({'message': 'Usuario atualizado com sucesso'}, serializer.data, status=status.HTTP_200_OK)
+                return Response({'message': 'Usuario atualizado com sucesso', 'data': serializer.data}, status=status.HTTP_200_OK)
             return Response({'message': 'Erro ao processar'}, status=status.HTTP_400_BAD_REQUEST)
         except Http404:
             raise Http404("Usuario não encontrando")
@@ -69,19 +69,18 @@ class UpdateDeleteDetailUsuario(RetrieveUpdateDestroyAPIView):
         except Http404:
             raise Http404("Usuario não encontrando")
 
-        
-
-
+    
 # Para o token 
 class LoginView(TokenObtainPairView):
     serializer_class = LoginSerializer
+
 
 # CRUD Disciplinas 
 class UpdateDeleteDetailDisciplina(RetrieveUpdateDestroyAPIView):
     queryset = Disciplina.objects.all()
     serializer_class = DisciplinaSerializer
     permission_classes = [IsDiretorOrAdministrador]
-    
+
     def get(self, request, *args, **kwargs):
         try: 
             disciplina = self.get_object()
@@ -96,7 +95,7 @@ class UpdateDeleteDetailDisciplina(RetrieveUpdateDestroyAPIView):
             serializer = self.get_serializer(disciplina, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
-                return Response({'message': 'Disciplina atualizada com sucesso'}, serializer.data, status=status.HTTP_200_OK)
+                return Response({'message': 'Disciplina atualizada com sucesso', 'data': serializer.data}, status=status.HTTP_200_OK)
             return Response({'message': 'Erro ao processar'}, status=status.HTTP_400_BAD_REQUEST)
         except Http404:
             raise Http404("Disciplina não encontrada")
@@ -115,6 +114,14 @@ class CreateDisciplina(ListCreateAPIView):
     serializer_class = DisciplinaSerializer
     permission_classes = [IsDiretorOrAdministrador]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Disciplina criada com sucesso','data': serializer.data}, status=status.HTTP_201_CREATED)
+        return Response({'message': 'Erro ao criar Disciplina'}, status=status.HTTP_400_BAD_REQUEST)
+    # def create(self, request, *args, **kwargs):
+        
 
 #CRUD Salas 
 class CreateSala(ListCreateAPIView):
@@ -122,17 +129,66 @@ class CreateSala(ListCreateAPIView):
     serializer_class = SalaSerializer
     permission_classes = [IsDiretorOrAdministrador]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Sala criada com sucesso','data': serializer.data}, status=status.HTTP_201_CREATED)
+        return Response({'message': 'Erro ao criar Sala'}, status=status.HTTP_400_BAD_REQUEST)
+    
 class UpdateDeleteDetailSala(RetrieveUpdateDestroyAPIView):
     queryset = Sala.objects.all()
     serializer_class = SalaSerializer
     permission_classes = [IsDiretorOrAdministrador]
 
+    def get(self, request, *args, **kwargs):
+        try: 
+            sala = self.get_object()
+            serializer = self.get_serializer(sala)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Http404:
+            raise Http404("Sala não encontrada")
+        
+    def put(self, request, *args, **kwargs):
+        try:
+            sala = self.get_object()
+            serializer = self.get_serializer(sala, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'message': 'Sala atualizada com sucesso', 'data': serializer.data}, status=status.HTTP_200_OK)
+            return Response({'message': 'Erro ao processar'}, status=status.HTTP_400_BAD_REQUEST)
+        except Http404:
+            raise Http404("Sala não encontrada")
+        
+    def delete(self, request, *args, **kwargs):
+        try:
+            sala = self.get_object()
+            serializer = self.get_serializer(sala)
+            return Response({'message': 'Sala apagada com sucesso'}, status=status.HTTP_204_NO_CONTENT)
+        except Http404:
+            raise Http404("Sala não encontrada")
+        
 
 #CRUD Reservas 
 class CreateReservaAmbiente(ListCreateAPIView):
     queryset = ReservaAmbiente.objects.all()
     serializer_class = ReservaSerializer
 
+    def get(self, request, *args, **kwargs):
+        try: 
+            reservaAmbiente = self.get_object()
+            serializer = self.get_serializer(reservaAmbiente)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Http404:
+            raise Http404("Ambiente não encontrado")
+        
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Ambiente criado com sucesso','data': serializer.data}, status=status.HTTP_201_CREATED)
+        return Response({'message': 'Erro ao criar reserva'}, status=status.HTTP_400_BAD_REQUEST)
+    
     def get_permissions(self):
         if self.request.method == 'GET':
             return [IsAuthenticated()]
@@ -149,6 +205,33 @@ class UpdateDeleteDetailAmbiente(RetrieveUpdateDestroyAPIView):
     queryset = ReservaAmbiente.objects.all()
     serializer_class = ReservaSerializer
     permission_classes = [IsDiretorOrAdministrador]
+
+    def get(self, request, *args, **kwargs):
+        try: 
+            reservaAmbiente = self.get_object()
+            serializer = self.get_serializer(reservaAmbiente)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Http404:
+            raise Http404("Ambiente não encontrado")
+        
+    def put(self, request, *args, **kwargs):
+        try:
+            sala = self.get_object()
+            serializer = self.get_serializer(sala, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'message': 'Ambiente atualizado com sucesso'}, serializer.data, status=status.HTTP_200_OK)
+            return Response({'message': 'Erro ao processar'}, status=status.HTTP_400_BAD_REQUEST)
+        except Http404:
+            raise Http404("Ambiente não encontrado")
+        
+    def delete(self, request, *args, **kwargs):
+        try:
+            reservaAmbiente = self.get_object()
+            serializer = self.get_serializer(reservaAmbiente)
+            return Response({'message': 'Ambiente apagado com sucesso'}, status=status.HTTP_204_NO_CONTENT)
+        except Http404:
+            raise Http404("Ambiente não encontrado")
 
 #Listagem 
 # Professores veem suas proprias disciplinas 
