@@ -11,6 +11,7 @@ from .serializers import *
 from rest_framework.generics import *
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated
+from django.http import Http404
 
 # CRUD para usuario 
 class CreateUserView(APIView):
@@ -40,6 +41,36 @@ class UpdateDeleteDetailUsuario(RetrieveUpdateDestroyAPIView):
     serializer_class = UsuarioSerializer
     permission_classes = [IsDiretorOrAdministrador]
 
+    def get(self, request, *args, **kwargs):
+        try: 
+            usuario = self.get_object()
+            serializer = self.get_serializer(usuario)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Http404:
+            raise Http404("Usuario não encontrando")
+            # return Response({'message': 'usuario não encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        
+    def put(self, request, *args, **kwargs):
+        try:
+            usuario = self.get_object()
+            serializer = self.get_serializer(usuario, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'message': 'Usuario atualizado com sucesso'}, serializer.data, status=status.HTTP_200_OK)
+            return Response({'message': 'Erro ao processar'}, status=status.HTTP_400_BAD_REQUEST)
+        except Http404:
+            raise Http404("Usuario não encontrando")
+        
+    def delete(self, request, *args, **kwargs):
+        try:
+            usuario = self.get_object()
+            serializer = self.get_serializer(usuario)
+            return Response({'message': 'usuario apagado com sucesso'}, status=status.HTTP_204_NO_CONTENT)
+        except Http404:
+            raise Http404("Usuario não encontrando")
+
+        
+
 
 # Para o token 
 class LoginView(TokenObtainPairView):
@@ -50,6 +81,34 @@ class UpdateDeleteDetailDisciplina(RetrieveUpdateDestroyAPIView):
     queryset = Disciplina.objects.all()
     serializer_class = DisciplinaSerializer
     permission_classes = [IsDiretorOrAdministrador]
+    
+    def get(self, request, *args, **kwargs):
+        try: 
+            disciplina = self.get_object()
+            serializer = self.get_serializer(disciplina)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Http404:
+            raise Http404("Disciplina não encontrada")
+        
+    def put(self, request, *args, **kwargs):
+        try:
+            disciplina = self.get_object()
+            serializer = self.get_serializer(disciplina, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'message': 'Disciplina atualizada com sucesso'}, serializer.data, status=status.HTTP_200_OK)
+            return Response({'message': 'Erro ao processar'}, status=status.HTTP_400_BAD_REQUEST)
+        except Http404:
+            raise Http404("Disciplina não encontrada")
+        
+    def delete(self, request, *args, **kwargs):
+        try:
+            disciplina = self.get_object()
+            serializer = self.get_serializer(disciplina)
+            return Response({'message': 'Disciplina apagado com sucesso'}, status=status.HTTP_204_NO_CONTENT)
+        except Http404:
+            raise Http404("Disciplina não encontrada")
+        
 
 class CreateDisciplina(ListCreateAPIView):
     queryset = Disciplina.objects.all()
@@ -106,7 +165,10 @@ class ReservasPorProfessor(ListAPIView):
     permission_classes = [IsProfessor]
 
     def get_queryset(self):
-        return ReservaAmbiente.objects.filter(disc__professor=self.request.user)
+        return ReservaAmbiente.objects.filter(prof_resp=self.request.user)
+
+    # def get_queryset(self):
+    #     return ReservaAmbiente.objects.filter(prof_resp=self.request.user)
 
 # Todos os usuarios
 class ListUsuario(ListAPIView):

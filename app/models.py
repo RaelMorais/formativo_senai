@@ -5,8 +5,7 @@ from django.contrib.auth.models import AbstractUser
 escolha_funcao = (
     ('ADM', 'Administrador'),
     ('D', 'Diretor'), # Cargo de gestor: Permissão total 
-    ('P', 'Professor'), # Professores: pode alterar os alunos -> não pode alterar próprio horario ou informações 
-    ('E', 'Estudante') # Apenas visualiza
+    ('P', 'Professor') # Professores: pode alterar os alunos -> não pode alterar próprio horario ou informações  
 )
 
 """
@@ -20,12 +19,12 @@ class Usuario (AbstractUser):
     cargo = models.CharField(max_length=100, choices=escolha_funcao, default='')
     data_nasc = models.DateTimeField(null=True, blank=True)
     data_contra = models.DateTimeField(null=True, blank=True)
-    ni = models.CharField(max_length=100, default='') # Numero de identificação
-    REQUIRED_FIELDS = ['cargo', 'situacao']
+    ni = models.CharField(max_length=100, default='', unique=True, null=True) # Numero de identificação
+    REQUIRED_FIELDS = ['ni', 'cargo', 'situacao']
 
     
     def __str__(self):
-        return self.nome
+        return self.username
 
 # Para cadastro de disciplinas 
 class Disciplina(models.Model):
