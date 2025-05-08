@@ -77,13 +77,14 @@ WSGI_APPLICATION = 'sistema.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# Mysql Credentials for Mysql 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'formativo_dorival',
         'USER': 'root',
-        'PASSWORD': 'senai',
-        'HOST': 'localhost',  # ou IP do servidor MySQL
+        'PASSWORD': 'root',
+        'HOST': 'localhost',  # --->Mysql Ip---<
         'PORT': '3306',       # porta padrão
     }
 }

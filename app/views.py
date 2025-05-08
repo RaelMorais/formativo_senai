@@ -1,17 +1,15 @@
-from django.shortcuts import render
 from .permissions import * 
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import * 
-from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import * 
 from rest_framework.generics import *
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated
 from django.http import Http404
+from rest_framework.exceptions import ValidationError
 
 # CRUD para usuario 
 class CreateUserView(APIView):
@@ -41,6 +39,7 @@ class UpdateDeleteDetailUsuario(RetrieveUpdateDestroyAPIView):
     serializer_class = UsuarioSerializer
     permission_classes = [IsDiretorOrAdministrador]
 
+    # Funções para validação e retornar codigos http 
     def get(self, request, *args, **kwargs):
         try: 
             usuario = self.get_object()
@@ -70,10 +69,10 @@ class UpdateDeleteDetailUsuario(RetrieveUpdateDestroyAPIView):
             raise Http404("Usuario não encontrando")
 
     
-# Para o token 
+#_______________________________Para o token_________________________________________
 class LoginView(TokenObtainPairView):
     serializer_class = LoginSerializer
-
+#_______________________________Para o token_________________________________________
 
 # CRUD Disciplinas 
 class UpdateDeleteDetailDisciplina(RetrieveUpdateDestroyAPIView):
@@ -81,6 +80,8 @@ class UpdateDeleteDetailDisciplina(RetrieveUpdateDestroyAPIView):
     serializer_class = DisciplinaSerializer
     permission_classes = [IsDiretorOrAdministrador]
 
+    
+    # Funções para validação e retornar codigos http 
     def get(self, request, *args, **kwargs):
         try: 
             disciplina = self.get_object()
@@ -114,6 +115,8 @@ class CreateDisciplina(ListCreateAPIView):
     serializer_class = DisciplinaSerializer
     permission_classes = [IsDiretorOrAdministrador]
 
+    
+    # Funções para validação e retornar codigos http 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
@@ -129,6 +132,8 @@ class CreateSala(ListCreateAPIView):
     serializer_class = SalaSerializer
     permission_classes = [IsDiretorOrAdministrador]
 
+    
+    # Funções para validação e retornar codigos http 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
@@ -141,6 +146,8 @@ class UpdateDeleteDetailSala(RetrieveUpdateDestroyAPIView):
     serializer_class = SalaSerializer
     permission_classes = [IsDiretorOrAdministrador]
 
+    
+    # Funções para validação e retornar codigos http 
     def get(self, request, *args, **kwargs):
         try: 
             sala = self.get_object()
@@ -169,11 +176,13 @@ class UpdateDeleteDetailSala(RetrieveUpdateDestroyAPIView):
             raise Http404("Sala não encontrada")
         
 
+# Regra: Somente professores ou diretores podem criar reservas de sala 
 #CRUD Reservas 
 class CreateReservaAmbiente(ListCreateAPIView):
     queryset = ReservaAmbiente.objects.all()
     serializer_class = ReservaSerializer
 
+    # função para validação do método HTTP
     def get(self, request, *args, **kwargs):
         try: 
             reservaAmbiente = self.get_object()
@@ -185,15 +194,54 @@ class CreateReservaAmbiente(ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
+            data = serializer.validated_data 
+            self.validar_reserva(data)
             serializer.save()
             return Response({'message': 'Ambiente criado com sucesso','data': serializer.data}, status=status.HTTP_201_CREATED)
         return Response({'message': 'Erro ao criar reserva'}, status=status.HTTP_400_BAD_REQUEST)
-    
+
+    # func para validar a reserva 
+    def validar_reserva(self, data):
+            prof_resp = data['prof_resp']
+            sala_reservada = data['sala_reservada']
+            data_ini = data['data_ini']
+            data_fim = data['data_fim']
+            periodo = data['periodo']
+
+            # se a data de inicio for maior que a data de fim, ex: data_ini: 23/05, data_fim: 20/05 
+            if data_ini > data_fim:
+                raise ValidationError("A data de início não pode ser posterior à data de término.")
+
+            # verificação para disponibilidade do professor, não permitindo estar cadastrado em duas salas na mesma data e período, e retornando mensagem de erro 
+            prof_not_available =  ReservaAmbiente.objects.filter(
+                prof_resp= prof_resp,
+                data_fim__gt = data_ini,
+                data_ini__lt = data_fim, 
+                periodo= periodo 
+            )
+
+            if prof_not_available.exists():
+                raise ValidationError ('Professor está indisponivel nesta data')
+            
+            # verificação se a sala está disponivel 
+            sala_not_available = ReservaAmbiente.objects.filter(
+                    data_fim__gt = data_ini,
+                    data_ini__lt = data_ini, 
+                    periodo= periodo, 
+                    sala_reservada = sala_reservada
+                )
+            if sala_not_available.exists():
+                raise ValidationError ('Sala já alocada nesta data.')
+         
+
+
+    # para definir para somente o get não precisar autenticar 
     def get_permissions(self):
         if self.request.method == 'GET':
             return [IsAuthenticated()]
-        return [IsDiretorOrAdministrador()]
+        return [IsDiretorProfessor()] # --> put, delete precisa ser diretor ou professor 
 
+    # retorna as reservas do professor logado com as credencias 
     def get_queryset(self):
         queryset = super().get_queryset()
         professor_id = self.request.query_params.get('professor', None)
@@ -204,7 +252,7 @@ class CreateReservaAmbiente(ListCreateAPIView):
 class UpdateDeleteDetailAmbiente(RetrieveUpdateDestroyAPIView):
     queryset = ReservaAmbiente.objects.all()
     serializer_class = ReservaSerializer
-    permission_classes = [IsDiretorOrAdministrador]
+    permission_classes = [IsDiretorProfessor]
 
     def get(self, request, *args, **kwargs):
         try: 
@@ -219,6 +267,9 @@ class UpdateDeleteDetailAmbiente(RetrieveUpdateDestroyAPIView):
             sala = self.get_object()
             serializer = self.get_serializer(sala, data=request.data, partial=True)
             if serializer.is_valid():
+                data = serializer.validated_data 
+                self.validar_reserva(data, instance_id = reserva.pk)
+    
                 serializer.save()
                 return Response({'message': 'Ambiente atualizado com sucesso'}, serializer.data, status=status.HTTP_200_OK)
             return Response({'message': 'Erro ao processar'}, status=status.HTTP_400_BAD_REQUEST)
@@ -232,7 +283,46 @@ class UpdateDeleteDetailAmbiente(RetrieveUpdateDestroyAPIView):
             return Response({'message': 'Ambiente apagado com sucesso'}, status=status.HTTP_204_NO_CONTENT)
         except Http404:
             raise Http404("Ambiente não encontrado")
+    
+    # validando a criação de ambientes para o método PUT 
+    def validar_reserva(self, data, instance_id=None):
+            prof_resp = data['prof_resp']
+            sala_reservada = data['sala_reservada']
+            data_ini = data['data_ini']
+            data_fim = data['data_fim']
+            periodo = data['periodo']
 
+            if data_ini > data_fim: # --> Não permite que a data de inicio seja posterior a de fim 
+                raise ValidationError("A data de início não pode ser posterior à data de término.")
+
+            # --> verificando se o professor está disponivel, caso não irá retornar uma mensagem de erro 
+            prof_not_available =  ReservaAmbiente.objects.filter(
+                prof_resp= prof_resp,
+                data_fim__gt = data_ini,
+                data_ini__lt = data_fim, 
+                periodo= periodo 
+            )
+
+            if prof_not_available.exists():
+                raise ValidationError ('Professor está indisponivel nesta data')
+
+            # --> verificando se a sala está disponivel 
+            sala_not_available = ReservaAmbiente.objects.filter(
+                    data_fim__gt = data_ini,
+                    data_ini__lt = data_ini, 
+                    periodo= periodo, 
+                    sala_reservada = sala_reservada
+                )
+            if sala_not_available.exists():
+                raise ValidationError ('Sala já alocada nesta data.')
+            
+            # buscando pelo ID para excluir
+            if instance_id:
+                sala_not_available = sala_not_available.exclude(pk=self.pk)
+                prof_not_available = prof_not_available.exclude(pk=self.pk)
+        
+            
+           
 #Listagem 
 # Professores veem suas proprias disciplinas 
 class DisciplinasPorProfessor(ListAPIView):

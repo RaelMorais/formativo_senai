@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 # Create your models here.
 
 escolha_funcao = (
@@ -34,7 +35,6 @@ class Disciplina(models.Model):
     desc = models.CharField(max_length=100)
     professor = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=True, blank=True)
 
-    
     def __str__(self):
         return self.nome
 
@@ -56,6 +56,45 @@ class ReservaAmbiente(models.Model):
     disc = models.ForeignKey(Disciplina, on_delete=models.CASCADE, max_length=100)
     sala_reservada = models.ForeignKey(Sala, on_delete=models.CASCADE, default='')
 
+    # feat: adicionar o horario de professor dps 
     
+    # verificação no banco de dados
+    def clean(self):
+        prof_not_available =  ReservaAmbiente.objects.filter(
+            prof_resp=self.prof_resp,
+            data_fim__gt = self.data_ini,
+            data_ini__lt = self.data_fim, 
+            periodo=self.periodo 
+        )
+         # verficação para disponibilidade do professor 
+
+        sala_not_available = ReservaAmbiente.objects.filter(
+            data_fim__gt = self.data_ini,
+            data_ini__lt = self.data_fim, 
+            periodo=self.periodo, 
+            sala_reservada = self.sala_reservada
+        )
+
+        # verificação para dispnibilidade da sala 
+
+        if self.pk:
+            sala_not_available = sala_not_available.exclude(pk=self.pk)
+            prof_not_available = prof_not_available.exclude(pk=self.pk)
+        
+        
+        # retornando as mensagens de erros 
+        if sala_not_available.exists():
+            raise ValidationError ('Sala já cadastrada.')
+        if prof_not_available.exists():
+            raise ValidationError ('Professor já existe')
+        
+
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        if self.data_ini > self.data_fim:
+            raise ValidationError("A data de início não pode ser posterior à data de término.")
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f'{self.sala_reservada} - {self.get_periodo_display()} ({self.data_ini} a {self.data_fim})'

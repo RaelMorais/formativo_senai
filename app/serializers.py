@@ -37,7 +37,7 @@ class ReservaSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReservaAmbiente
         fields = '__all__'
-
+    
 class SalaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sala
