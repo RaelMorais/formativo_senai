@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'app', 
     'rest_framework',
     'rest_framework_simplejwt', 
+    'drf_yasg',
 
 ]
 
@@ -148,3 +149,19 @@ SIMPLE_JWT = {
 }
 
 AUTH_USER_MODEL = 'app.Usuario'
+
+# <--- Criando para o Swagger --->
+
+# settings.py
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization',
+            'description': 'Digite: **Bearer &lt;seu_token&gt;**',
+        }
+    },
+    'USE_SESSION_AUTH': False,
+}
