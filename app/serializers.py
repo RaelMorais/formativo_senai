@@ -29,11 +29,17 @@ class UsuarioSerializer(serializers.ModelSerializer):
         return instance
 
 class DisciplinaSerializer(serializers.ModelSerializer):
+    professor = UsuarioSerializer(read_only=True)
+    professor_name = serializers.CharField(source='professor.username', read_only=True)
+
     class Meta:
         model = Disciplina
         fields = '__all__'
 
 class ReservaSerializer(serializers.ModelSerializer):
+    professor_name = serializers.CharField(source='prof_resp.username', read_only=True) #pegar um campo espeficifo
+    sala_name = serializers.CharField(source='sala.nome', read_only=True)
+    disciplina_name = serializers.CharField(source='disc.nome', read_only=True)
     class Meta:
         model = ReservaAmbiente
         fields = '__all__'
