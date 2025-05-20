@@ -179,11 +179,11 @@ Resposta esperada:
 ]
 ```
 
-Para toda documentação completa, acesse: 
+Para documentação completa, acesse: 
  ```http://127.0.0.1:8000/swagger/```
 ou 
 ```http://127.0.0.1:8000/redoc/```
 
 Também é possível acessar pelo [Postman](#)
 
-⌨️ com ❤️ por [Israel Santanba](https://github.com/RaelMorais) 😊
+⌨️ com ❤️ por [Israel Santana](https://github.com/RaelMorais) 😊
