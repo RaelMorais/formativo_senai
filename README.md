@@ -18,7 +18,7 @@ Para rodar o projeto é necessário ter instalado:
 
 Para instalar o projeto localmente, use: 
 
-````git clone https://github.com/RaelMorais/formativo_senai.git```
+```git clone https://github.com/RaelMorais/formativo_senai.git```
 
 
 # ⚙️ Configurando o Ambiente Virtual
@@ -29,7 +29,7 @@ Navegue até a pasta do projeto e crie um ambiente virtual usando:
 
 E então instale os requirements usando 
 
-````pip install -r requirements.txt```
+```pip install -r requirements.txt```
 
 ### 🦾🧠 Configuração do Projeto 
 
@@ -180,12 +180,9 @@ Resposta esperada:
 ```
 
 Para toda documentação completa, acesse: 
-
--> ```http://127.0.0.1:8000/swagger/```
-
+ ```http://127.0.0.1:8000/swagger/```
 ou 
-
--> ```http://127.0.0.1:8000/redoc/```
+```http://127.0.0.1:8000/redoc/```
 
 Também é possível acessar pelo [Postman](#)
 
