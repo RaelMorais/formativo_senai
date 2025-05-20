@@ -84,7 +84,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'formativo_dorival',
         'USER': 'root',
-        'PASSWORD': 'root',
+        'PASSWORD': 'senai',
         'HOST': 'localhost',  # --->Mysql Ip---<
         'PORT': '3306',       # porta padrão
     }
@@ -142,7 +142,7 @@ REST_FRAMEWORK = {
 
 
 SIMPLE_JWT = {
-    'ACESS_TOKEN_LIFETIME': timedelta(hours=2), # Adicione validade para o Token
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2), # Adicione validade para o Token
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1), # Define o prazo do Refresh Token
     'ROTATE_REFRESH_TOKENS': False, 
     'BLACKLIST_AFTER_ROTATION': True, 

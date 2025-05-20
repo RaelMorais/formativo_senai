@@ -13,27 +13,28 @@ from rest_framework_simplejwt.views import (
 
 
 urlpatterns = [
-    # Criar itens - > Usuario, Disciplina, Ambiente e Sala
+    # Criar itens - > Usuario, Disciplina, Ambiente e Sala -> Só para o diretor e Administrador 
     path("criar/usuario/", CreateUserView.as_view()),
     path('criar/disciplina/', CreateDisciplina.as_view()),
     path('criar/ambiente/', CreateReservaAmbiente.as_view()),
     path("criar/sala/", CreateSala.as_view()),
 
     # Endpoints para detalhe, update e delete --> Usando o <id>
-    path('ambiente/<int:pk>', UpdateDeleteDetailAmbiente.as_view()),
-    path('disciplina/<int:pk>', UpdateDeleteDetailDisciplina.as_view()),
+    path('ambiente/<int:pk>', UpdateDeleteDetailAmbiente.as_view()), # Só diretor e professor
+    # Diretor ou administrador tem acesso 
+    path('disciplina/<int:pk>', UpdateDeleteDetailDisciplina.as_view()), 
     path("usuario/<int:pk>", UpdateDeleteDetailUsuario.as_view()),
     path("sala/<int:pk>", UpdateDeleteDetailSala.as_view()),
 
     # Endpoints apenas para visualização do diretor e professor 
-    path("usuario/", ListUsuario.as_view()),
-    path("sala/", ListSala.as_view()),
-    path('ambiente', ListAmbiente.as_view()),
-    path('disciplina/', ListDisciplina.as_view()),
+    path("listar/usuarios/", ListUsuario.as_view()),
+    path("listar/salas/", ListSala.as_view()),
+    path('listar/ambientes/', ListAmbiente.as_view()),
+    path('listar/disciplinas/', ListDisciplina.as_view()),
 
     # Endpoints apenas para visualização de reservas por professor e disciplina por professor 
-    path('reservas/', ReservasPorProfessor.as_view()), 
-    path("disciplina/", DisciplinasPorProfessor.as_view()), 
+    path('listar/reservas/', ReservasPorProfessor.as_view()), 
+    path("listar/disciplina/", DisciplinasPorProfessor.as_view()), 
 
     # Para obter o token --> LoginView retorna valoes personalizados definidos em serializers.py <--
     path('token/', LoginView.as_view(), name='token_obtain_pair'),
