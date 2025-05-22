@@ -52,10 +52,16 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware', # Configurações do Cors headers
 ]
 
 ROOT_URLCONF = 'sistema.urls'
 
+# Configurações do Cors headers
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWED_ORIGIN = [
+    'http://localhost:5173'
+]
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -84,7 +90,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'formativo_dorival',
         'USER': 'root',
-        'PASSWORD': 'senai',
+        'PASSWORD': 'root',
         'HOST': 'localhost',  # --->Mysql Ip---<
         'PORT': '3306',       # porta padrão
     }

@@ -52,10 +52,12 @@ class SalaSerializer(serializers.ModelSerializer):
 class LoginSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
+        # usuario é como a data será tratada no json ou request 
         data['usuario'] = {
             'id': self.user.id, 
             'username': self.user.username,
-            'email': self.user.email
+            'email': self.user.email,
+            'cargo': self.user.cargo, 
         }
 
         return data
