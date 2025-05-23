@@ -5,3 +5,4 @@ from .models import *
 admin.site.register(Usuario)
 admin.site.register(ReservaAmbiente)
 admin.site.register(Disciplina)
+admin.site.register(Sala)

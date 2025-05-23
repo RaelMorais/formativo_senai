@@ -60,7 +60,8 @@ ROOT_URLCONF = 'sistema.urls'
 # Configurações do Cors headers
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOWED_ORIGIN = [
-    'http://localhost:5173'
+    'http://localhost:5173',
+    "http://localhost:3000",
 ]
 TEMPLATES = [
     {
@@ -90,7 +91,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'formativo_dorival',
         'USER': 'root',
-        'PASSWORD': 'root',
+        'PASSWORD': 'senai',
         'HOST': 'localhost',  # --->Mysql Ip---<
         'PORT': '3306',       # porta padrão
     }
