@@ -14,23 +14,23 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
     # Criar itens - > Usuario, Disciplina, Ambiente e Sala -> Só para o diretor e Administrador 
-    path("criar/usuario/", CreateUserView.as_view()),
-    path('criar/disciplina/', CreateDisciplina.as_view()),
-    path('criar/ambiente/', CreateReservaAmbiente.as_view()),
-    path("criar/sala/", CreateSala.as_view()),
+    path("usuario/", CreateUserView.as_view()),
+    path('disciplina/', CreateDisciplina.as_view()),
+    path('ambiente/', CreateReservaAmbiente.as_view()),
+    path("sala/", CreateSala.as_view()),
 
     # Endpoints para detalhe, update e delete --> Usando o <id>
-    path('ambiente/<int:pk>', UpdateDeleteDetailAmbiente.as_view()), # Só diretor e professor
+    path('ambiente/<int:pk>', UpdateDeleteDetailAmbiente.as_view()),
     # Diretor ou administrador tem acesso 
     path('disciplina/<int:pk>', UpdateDeleteDetailDisciplina.as_view()), 
     path("usuario/<int:pk>", UpdateDeleteDetailUsuario.as_view()),
     path("sala/<int:pk>", UpdateDeleteDetailSala.as_view()),
 
     # Endpoints apenas para visualização do diretor e professor 
-    path("listar/usuarios/", ListUsuario.as_view()),
-    path("listar/salas/", ListSala.as_view()),
-    path('listar/ambientes/', ListAmbiente.as_view()),
-    path('listar/disciplinas/', ListDisciplina.as_view()),
+    path("usuarios/", ListUsuario.as_view()),
+    path("salas/", ListSala.as_view()),
+    path('ambientes/', ListAmbiente.as_view()),
+    path('disciplinas/', ListDisciplina.as_view()),
 
     # Endpoints apenas para visualização de reservas por professor e disciplina por professor 
     path('listar/reservas/', ReservasPorProfessor.as_view()), 

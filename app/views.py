@@ -12,7 +12,9 @@ from django.http import Http404
 from rest_framework.exceptions import ValidationError
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
 
 # CRUD para usuario 
 class CreateUserView(APIView):
@@ -49,7 +51,9 @@ class CreateUserView(APIView):
     )
     
     def get(self, request, *args, **kwargs):
-            return super().get(request, *args, **kwargs)
+        usuarios = User.objects.all()
+        serializer = UsuarioSerializer(usuarios, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 class UpdateDeleteDetailUsuario(RetrieveUpdateDestroyAPIView):
     queryset = Usuario.objects.all()
@@ -155,7 +159,9 @@ class CreateDisciplina(ListCreateAPIView):
     )
     
     def get(self, request, *args, **kwargs):
-            return super().get(request, *args, **kwargs)
+        disciplina = Disciplina.objects.all()
+        serializer = DisciplinaSerializer(disciplina, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class UpdateDeleteDetailDisciplina(RetrieveUpdateDestroyAPIView):
     queryset = Disciplina.objects.all()
