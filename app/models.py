@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 # Create your models here.
 
 escolha_funcao = (
@@ -14,6 +15,7 @@ Ideia básica: escada hierarquica, os diretores controlam tudo, os professores o
 """
 
 class Usuario (AbstractUser):
+    username = models.CharField(max_length=150, unique=True, validators=[RegexValidator(regex=r'^[\w.@+-áéíóúàèìòùãõâêîôûçÇÁÉÍÓÚÀÈÌÒÙÃÕÂÊÎÔÛ\s]+$',message='Use apenas letras, números, espaços e símbolos permitidos.')]),
     telefone = models.CharField(max_length=100, null=True, blank=True)
     genero = models.CharField(max_length=100, choices=(('M', 'Masculino'), ('F', 'Feminio'), ('N', 'Neutro')), null=True, blank=True)
     situacao = models.CharField(max_length=100, choices=(('Ef', 'Efetivo'), ('Es','Estagio'), ('Mo','Meio-Oficial'), ('Ap','Aprendiz')), null=True, blank=True)
