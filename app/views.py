@@ -113,7 +113,7 @@ class UpdateDeleteDetailUsuario(RetrieveUpdateDestroyAPIView):
     def delete(self, request, *args, **kwargs):
         try:
             usuario = self.get_object()
-            serializer = self.get_serializer(usuario)
+            usuario.delete()
             return Response({'message': 'usuario apagado com sucesso'}, status=status.HTTP_204_NO_CONTENT)
         except Http404:
             raise Http404("Usuario não encontrando")
@@ -220,7 +220,7 @@ class UpdateDeleteDetailDisciplina(RetrieveUpdateDestroyAPIView):
     def delete(self, request, *args, **kwargs):
         try:
             disciplina = self.get_object()
-            serializer = self.get_serializer(disciplina)
+            disciplina.delete()
             return Response({'message': 'Disciplina apagado com sucesso'}, status=status.HTTP_204_NO_CONTENT)
         except Http404:
             raise Http404("Disciplina não encontrada")

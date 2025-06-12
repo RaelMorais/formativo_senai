@@ -34,8 +34,8 @@ class DisciplinaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Disciplina
-        fields = ['nome', 'curso', 'carga_horaria', 'desc', 'professor', 'professor_name']
-
+        fields = ['id', 'nome', 'curso', 'carga_horaria', 'desc', 'professor', 'professor_name']
+    
 class ReservaSerializer(serializers.ModelSerializer):
     professor_name = serializers.CharField(source='prof_resp.username', read_only=True) #pegar um campo espeficifo
     sala_name = serializers.CharField(source='sala.nome', read_only=True)

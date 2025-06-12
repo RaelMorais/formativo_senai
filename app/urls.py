@@ -10,7 +10,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-
+     
 
 urlpatterns = [
     # Criar itens - > Usuario, Disciplina, Ambiente e Sala -> Só para o diretor e Administrador 
