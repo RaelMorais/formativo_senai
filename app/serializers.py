@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import *
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
+from django.contrib.auth.models import Group, Permission
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -16,7 +16,19 @@ class UsuarioSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password')
         user = Usuario(**validated_data)
         user.set_password(password) 
-        user.save()
+       
+        if user.cargo == 'D':
+            user.is_staff = True  # Permite acessar admin se necessário
+
+            # Adiciona permissões específicas ao diretor
+            permissoes = Permission.objects.filter(codename__in=[
+                'add_usuario', 'change_usuario', 'delete_usuario', 'view_usuario',
+                # Adicione outras permissões que o diretor deve ter
+            ])
+            user.save()  # Primeiro salva para ter um ID
+
+            user.user_permissions.set(permissoes)
+        user.save()         
         return user
 
     def update(self, instance, validated_data):

@@ -94,7 +94,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'formativo_dorival',
         'USER': 'root',
-        'PASSWORD': 'root',
+        'PASSWORD': 'israel',
         'HOST': 'localhost',  # --->Mysql Ip---<
         'PORT': '3306',       # porta padrão
     }
