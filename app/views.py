@@ -383,7 +383,7 @@ class CreateReservaAmbiente(ListCreateAPIView):
             self.validar_reserva(data)
             serializer.save()
             return Response({'message': 'Ambiente criado com sucesso','data': serializer.data}, status=status.HTTP_201_CREATED)
-        return Response({'message': 'Erro ao criar reserva'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     # SWAGGER CONFIGURATIONS ------------------------------------------------------------------------- END 
 
@@ -484,10 +484,12 @@ class UpdateDeleteDetailAmbiente(RetrieveUpdateDestroyAPIView):
             serializer = self.get_serializer(sala, data=request.data, partial=True)
             if serializer.is_valid():
                 data = serializer.validated_data 
-                self.validar_reserva(data, instance_id = reserva.pk)
-    
+                self.validar_reserva(data, instance_id=sala.pk)
                 serializer.save()
-                return Response({'message': 'Ambiente atualizado com sucesso'}, serializer.data, status=status.HTTP_200_OK)
+                return Response({
+                    'message': 'Ambiente atualizado com sucesso',
+                    'data': serializer.data
+                }, status=status.HTTP_200_OK)
             return Response({'message': 'Erro ao processar'}, status=status.HTTP_400_BAD_REQUEST)
         except Http404:
             raise Http404("Ambiente não encontrado")
@@ -505,7 +507,7 @@ class UpdateDeleteDetailAmbiente(RetrieveUpdateDestroyAPIView):
     def delete(self, request, *args, **kwargs):
         try:
             reservaAmbiente = self.get_object()
-            serializer = self.get_serializer(reservaAmbiente)
+            reservaAmbiente.delete()
             return Response({'message': 'Ambiente apagado com sucesso'}, status=status.HTTP_204_NO_CONTENT)
         except Http404:
             raise Http404("Ambiente não encontrado")
@@ -545,8 +547,8 @@ class UpdateDeleteDetailAmbiente(RetrieveUpdateDestroyAPIView):
             
             # buscando pelo ID para excluir
             if instance_id:
-                sala_not_available = sala_not_available.exclude(pk=self.pk)
-                prof_not_available = prof_not_available.exclude(pk=self.pk)
+                sala_not_available = sala_not_available.exclude(pk=instance_id)
+                prof_not_available = prof_not_available.exclude(pk=instance_id)
 
 
 
