@@ -18,7 +18,7 @@ Para rodar o projeto é necessário ter instalado:
 
 Para instalar o projeto localmente, use: 
 
-```git clone https://github.com/RaelMorais/formativo_senai.git```
+```git clone https://github.com/RaelMorais/projeto_educar_back.git```
 
 
 # ⚙️ Configurando o Ambiente Virtual
